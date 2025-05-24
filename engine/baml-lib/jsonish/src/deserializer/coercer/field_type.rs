@@ -184,11 +184,17 @@ impl DefaultValue for FieldType {
             FieldType::Literal(_) => None,
             FieldType::Class(_) => None,
             FieldType::RecursiveTypeAlias(_) => None,
-            FieldType::List(_) => Some(BamlValueWithFlags::List(
-                get_flags(),
-                self.clone(),
-                Vec::new(),
-            )),
+            FieldType::List(_) => {
+                if error.is_some() {
+                    None
+                } else {
+                    Some(BamlValueWithFlags::List(
+                        get_flags(),
+                        self.clone(),
+                        Vec::new(),
+                    ))
+                }
+            },
             FieldType::Union(items) => items.iter().find_map(|i| i.default_value(error)),
             FieldType::Primitive(TypeValue::Null) | FieldType::Optional(_) => {
                 Some(BamlValueWithFlags::Null(self.clone(), get_flags()))
