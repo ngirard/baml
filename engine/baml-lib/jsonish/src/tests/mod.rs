@@ -15,6 +15,7 @@ mod test_maps;
 mod test_partials;
 mod test_streaming;
 mod test_unions;
+mod test_question_generation;
 
 use indexmap::{IndexMap, IndexSet};
 use std::{

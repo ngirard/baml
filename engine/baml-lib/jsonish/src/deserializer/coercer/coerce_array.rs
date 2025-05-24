@@ -32,6 +32,7 @@ pub(super) fn coerce_array(
     let mut items = vec![];
     let mut flags = DeserializerConditions::new();
 
+    let mut had_items = false;
     match &value {
         Some(crate::jsonish::Value::Array(arr, completion_state)) => {
             if *completion_state == CompletionState::Incomplete {
@@ -44,6 +45,7 @@ pub(super) fn coerce_array(
                     Err(e) => flags.add_flag(Flag::ArrayItemParseError(i, e)),
                 }
             }
+            had_items = !arr.is_empty();
         }
         Some(v) => {
             flags.add_flag(Flag::SingleToArray);
@@ -51,9 +53,14 @@ pub(super) fn coerce_array(
                 Ok(v) => items.push(v),
                 Err(e) => flags.add_flag(Flag::ArrayItemParseError(0, e)),
             }
+            had_items = true;
         }
         None => {}
     };
+
+    if had_items && items.is_empty() {
+        return Err(ctx.error_unexpected_empty_array(list_target));
+    }
 
     Ok(BamlValueWithFlags::List(flags, list_target.clone(), items))
 }
